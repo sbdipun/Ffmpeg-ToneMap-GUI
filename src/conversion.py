@@ -135,8 +135,7 @@ class ConversionManager:
                     '-preset', 'veryfast',  # Reverted to veryfast
                     '-tune', 'film',
                     '-crf', '23',
-                    '-b:v', str(properties['bit_rate']),
-                    '-pix_fmt', 'yuv420p' # Added back for H.264 CPU
+                    '-b:v', str(properties['bit_rate'])
                 ]
         elif selected_codec == 'h265':
             # HEVC (H.265) CPU encoding
@@ -152,6 +151,7 @@ class ConversionManager:
         # Common settings
         cmd += [
             '-r', str(properties['frame_rate']),
+            '-pix_fmt', 'yuv420p', # Moved back to common settings
             '-strict', '-2',
             '-c:a', 'copy',      # Copy all audio streams as-is
             '-c:s', 'copy',      # Copy all subtitle streams as-is
