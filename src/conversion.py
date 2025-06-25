@@ -132,12 +132,10 @@ class ConversionManager:
             else:
                 cmd += [
                     '-c:v', 'libx264',
-                    '-preset', 'medium',  # Changed from veryfast to medium
+                    '-preset', 'veryfast',  # Reverted to veryfast
                     '-tune', 'film',
                     '-crf', '23',
-                    '-b:v', str(properties['bit_rate']),
-                    '-profile:v', 'high',
-                    '-level', '4.0'
+                    '-b:v', str(properties['bit_rate'])
                 ]
         elif selected_codec == 'h265':
             # HEVC (H.265) CPU encoding
@@ -331,11 +329,15 @@ class ConversionManager:
                 stdout=subprocess.PIPE, 
                 stderr=subprocess.PIPE,
                 startupinfo=startupinfo,
-                creationflags=creationflags)
-            if result.returncode != 0:
-                logging.warning("nvidia-smi not found or no NVIDIA GPU detected.")
+                creationflags=creationflags,
+                text=True, # Decode stdout/stderr as text
+                check=False # Do not raise an exception for non-zero exit codes
+            )
+            
+            if result.returncode != 0 or not result.stdout:
+                logging.warning("nvidia-smi not found or no NVIDIA GPU detected. Output: %s, Error: %s", result.stdout, result.stderr)
                 return False
-            logging.debug("NVIDIA GPU detected.")
+            logging.debug("NVIDIA GPU detected. Output: %s", result.stdout)
 
             cmd = [FFMPEG_EXECUTABLE, '-encoders']
             process = subprocess.Popen(
